@@ -147,7 +147,7 @@ const Wikimedia = {
   total: function () { return this.count + (this.done ? "" : "+"); }
 };
 
-// Logos de marques : lancé seulement à la demande (bouton), pour ménager les 10 requêtes par jour sans clé.
+// Logos de marques : cherchés seulement quand on choisit la puce Worldvectorlogo, pour ménager le quota.
 const WorldVectorLogo = {
   id: "wvl", label: "Worldvectorlogo", manual: true,
   reset: function () { this.page = 0; this.done = false; this.count = 0; this.total = 0; this.term = ""; },
@@ -155,15 +155,23 @@ const WorldVectorLogo = {
     this.term = term; this.page = 0; this.count = 0;
     return this.next(signal);
   },
+  // Passe d'abord par le relais du site (clé côté serveur, réponses en cache).
+  // Sans relais (fichier ouvert en local) ou s'il est indisponible : accès direct, 10 recherches par jour.
+  fetchPage: async function (page, signal) {
+    const qs = "page=" + page + "&q=" + encodeURIComponent(this.term);
+    if (/^https?:$/.test(location.protocol)) {
+      try {
+        const r = await fetch("/api/logos?" + qs, { signal: signal });
+        if (r.ok || r.status === 429) return r;
+      } catch (e) {
+        if (e.name === "AbortError") throw e;
+      }
+    }
+    return fetch("https://worldvectorlogo.com/api/v1/logos/search?per_page=48&" + qs, { signal: signal });
+  },
   next: async function (signal) {
-    const url = "https://worldvectorlogo.com/api/v1/logos/search?per_page=48&page=" + (this.page + 1) +
-      "&q=" + encodeURIComponent(this.term);
-    const headers = {};
-    const key = wvlKey();
-    if (key) headers.Authorization = "Bearer " + key;
-    const r = await fetch(url, { signal: signal, headers: headers });
+    const r = await this.fetchPage(this.page + 1, signal);
     if (r.status === 429) throw new Error("quota");
-    if (r.status === 401) throw new Error("cle");
     if (!r.ok) throw new Error("HTTP " + r.status);
     const d = await r.json();
     const meta = d.meta || {};
@@ -190,11 +198,6 @@ const WorldVectorLogo = {
     return items;
   }
 };
-function wvlKey() {
-  const el = document.getElementById("wvlKey");
-  return el ? el.value.trim() : "";
-}
-
 const SOURCES = [Iconify, Wikimedia, WorldVectorLogo];
 
 /* ---------- État et rendu ---------- */
@@ -218,9 +221,9 @@ function renderChips() {
   const counts = { all: 0 };
   for (const s of SOURCES) counts[s.id] = 0;
   for (const it of state.items) if (!it.stale && passesLicense(it, state.lic)) { counts[it.source]++; counts.all++; }
-  const defs = [{ id: "all", label: "Toutes" }].concat(SOURCES
-    .filter(function (s) { return !s.manual || state.statuses[s.id]; })
-    .map(function (s) { return { id: s.id, label: s.label }; }));
+  const defs = [{ id: "all", label: "Toutes" }].concat(SOURCES.map(function (s) {
+    return { id: s.id, label: s.id === "wvl" ? "Logos · Worldvectorlogo" : s.label };
+  }));
   // Les puces sont reconstruites : on garde le focus clavier sur celle qui l'avait.
   const active = document.activeElement;
   const focused = active && active.closest && active.closest("#sourceChips .chip") ? active.dataset.src : null;
@@ -228,7 +231,8 @@ function renderChips() {
     const st = state.statuses[d.id];
     let n = counts[d.id];
     if (d.id !== "all" && st === "loading") n = "…";
-    else if (d.id !== "all" && st === "error") n = "erreur";
+    else if (d.id !== "all" && (st === "error" || st === "quota")) n = "indisponible";
+    else if (d.id === "wvl" && !st) n = "";
     else if (d.id === "wikimedia" && !Wikimedia.done && n) n = n + "+";
     else if (d.id === "wvl" && !WorldVectorLogo.done && n) n = n + " / " + WorldVectorLogo.total;
     else if (d.id === "iconify" && !Iconify.done && n) n = n + " / " + Iconify.total();
@@ -289,8 +293,7 @@ function updateStatusLine() {
   const parts = SOURCES.map(function (s) {
     const st = state.statuses[s.id];
     if (st === "loading") return esc(s.label) + " : recherche…";
-    if (st === "quota") return '<span class="err">Worldvectorlogo : limite de 10 recherches par jour atteinte. Ajoutez une clé gratuite ou utilisez le lien plus bas.</span>';
-    if (st === "cle") return '<span class="err">Worldvectorlogo : clé API refusée, vérifiez-la.</span>';
+    if (st === "quota") return '<span class="err">Worldvectorlogo : quota de recherches atteint pour aujourd’hui. Réessayez demain, ou passez par le lien Worldvectorlogo plus bas.</span>';
     if (st === "error") return '<span class="err">' + esc(s.label) + " : indisponible pour le moment</span>";
     if (st === "ok" && s.id === "wvl") return "Worldvectorlogo : " + WorldVectorLogo.total + " logo(s) de marque";
     if (st === "ok" && s.id === "iconify") return "Iconify : " + Iconify.total() + " résultat(s)" +
@@ -310,11 +313,11 @@ async function runSearch(term) {
   state.items = [];
   state.order = [];
   state.statuses = {};
-  // La puce Worldvectorlogo disparaît avec la nouvelle recherche : on revient à « Toutes ».
-  if (state.filter === "wvl") state.filter = "all";
   renderElsewhere(term);
   const opts = { noLogos: $("noLogos").checked };
   WorldVectorLogo.reset();
+  // Si l'on regardait les logos, on les cherche aussi pour le nouveau terme.
+  if (state.filter === "wvl") searchLogos();
   await Promise.all(SOURCES.filter(function (s) { return !s.manual; }).map(async function (src) {
     src.reset();
     state.statuses[src.id] = "loading";
@@ -362,10 +365,8 @@ async function loadMore() {
 // Les noms de marques ne se traduisent pas : on cherche le texte tel qu'il a été tapé.
 async function searchLogos() {
   const term = $("q").value.trim() || $("term").value.trim();
-  // Une seule requête à la fois : sans clé, chaque requête compte dans les 10 du jour.
+  // Une seule requête à la fois : chaque requête compte dans le quota.
   if (!term || state.statuses.wvl === "loading") return;
-  const btn = $("wvlBtn");
-  btn.disabled = true;
   const controller = state.controller || new AbortController();
   state.controller = controller;
   // Retire les logos d'une recherche précédente avant d'ajouter les nouveaux.
@@ -382,17 +383,13 @@ async function searchLogos() {
     state.order = addItems(items).concat(state.order);
   } catch (e) {
     if (e.name === "AbortError" || controller.signal.aborted) return;
-    state.statuses.wvl = e.message === "quota" || e.message === "cle" ? e.message : "error";
+    state.statuses.wvl = e.message === "quota" ? "quota" : "error";
   } finally {
-    btn.disabled = false;
     if (state.statuses.wvl === "loading") delete state.statuses.wvl;
   }
   updateStatusLine(); renderGrid();
-  $("grid").scrollIntoView({ behavior: "smooth", block: "start" });
 }
 function updateLogoButton() {
-  const t = $("q").value.trim();
-  $("wvlBtn").textContent = t ? "Chercher « " + t + " » dans les logos de marques" : "Chercher dans les logos de marques";
   renderElsewhere($("term").value.trim() || "lightning");
 }
 
@@ -527,14 +524,14 @@ $("sourceChips").addEventListener("click", function (e) {
   if (!b) return;
   state.filter = b.dataset.src;
   renderGrid();
+  // Les logos ne sont cherchés qu'au moment où l'on choisit leur puce.
+  const st = state.statuses.wvl;
+  if (state.filter === "wvl" && st !== "ok" && st !== "loading") searchLogos();
 });
 $("licFilter").addEventListener("change", function () { state.lic = this.value; renderGrid(); });
 $("noLogos").addEventListener("change", function () { if ($("term").value.trim()) runSearch($("term").value); });
 $("moreBtn").addEventListener("click", loadMore);
-$("wvlBtn").addEventListener("click", searchLogos);
 $("q").addEventListener("input", updateLogoButton);
-$("wvlKey").value = store("vt-wvl-key") || "";
-$("wvlKey").addEventListener("change", function () { store("vt-wvl-key", this.value.trim()); });
 $("grid").addEventListener("click", function (e) {
   const b = e.target.closest("button.act");
   if (!b) return;

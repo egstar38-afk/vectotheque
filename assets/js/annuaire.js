@@ -81,7 +81,7 @@ const DIRECTORY = [
     title: "Logos de marques",
     intro: "Logos officiels en vectoriel, pratiques pour identifier ou retrouver un fichier propre. Attention, deux protections se cumulent : le logo est une marque déposée, et le fichier téléchargé a ses propres conditions (Worldvectorlogo : usage personnel uniquement). Pour un travail client, demandez le fichier du logo au client lui-même.",
     sites: [
-      { name: "Worldvectorlogo", url: "https://worldvectorlogo.com", badge: "marque", desc: "Plus de 120 000 logos en SVG (voitures, sponsors, clubs, entreprises). Intégré à la recherche de Vectothèque via le bouton « logos de marques ». Conditions du site : usage personnel uniquement." },
+      { name: "Worldvectorlogo", url: "https://worldvectorlogo.com", badge: "marque", desc: "Plus de 120 000 logos en SVG (voitures, sponsors, clubs, entreprises). Intégré à la recherche de Vectothèque via la puce « Logos · Worldvectorlogo ». Conditions du site : usage personnel uniquement." },
       { name: "Brands of the World", url: "https://www.brandsoftheworld.com", badge: "marque", desc: "Grande base de logos en AI, EPS, CDR et SVG envoyés par la communauté. Compte gratuit pour télécharger." },
       { name: "Vector Logo Zone", url: "https://www.vectorlogo.zone", badge: "marque", desc: "Logos de marques tech en SVG, dans des formats homogènes (icône, horizontal, carré)." },
       { name: "Simple Icons", url: "https://simpleicons.org", badge: "marque", desc: "Plus de 3 000 logos de marques en version monochrome SVG. Le fichier est CC0, mais la marque reste protégée." }
