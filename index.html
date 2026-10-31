@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vectothèque · Vecteurs SVG libres, cherchés en français</title>
+<meta name="description" content="Cherchez en français parmi des centaines de milliers d’icônes et d’illustrations SVG libres, avec leur licence, ainsi que des logos de marques. Pour Illustrator, Inkscape et VectorCraft.">
+<meta property="og:title" content="Vectothèque">
+<meta property="og:description" content="Vecteurs SVG libres, cherchés en français, avec leur licence.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#0e6e86">
+<link rel="icon" href="assets/img/logo.svg" type="image/svg+xml">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="stylesheet" href="assets/css/style.css">
+<script>try{var t=localStorage.getItem("vt-theme");if(t&&t!=="auto")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="index.html"><img src="assets/img/logo.svg" alt="">Vectothèque</a>
+    <nav class="nav" aria-label="Pages">
+      <a href="index.html" aria-current="page">Recherche</a>
+      <a href="generateurs.html">Générateurs</a>
+      <a href="annuaire.html">Annuaire</a>
+    </nav>
+    <div class="header-actions">
+      <a class="icon-btn" href="https://github.com/egstar38-afk/vectotheque" target="_blank" rel="noopener" title="Code source sur GitHub" aria-label="Code source sur GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.52-1.33-1.28-1.69-1.28-1.69-1.05-.71.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.26 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5z"/></svg>
+      </a>
+      <button class="icon-btn" id="themeBtn" type="button"></button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="hero" aria-labelledby="h1">
+    <p class="eyebrow">Banque de vecteurs libres</p>
+    <h1 id="h1">Des vecteurs libres, trouvés en français.</h1>
+    <p class="lead">Icônes, illustrations et logos en SVG, avec leur licence affichée. Prêts pour Illustrator, Inkscape ou VectorCraft.</p>
+
+    <form class="searchbox" id="searchForm" role="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <label class="sr" for="q">Mot-clé en français</label>
+      <input id="q" name="q" type="search" placeholder="Éclair, flamme, tête de mort, vague…" autocomplete="off" value="éclair">
+      <button class="btn" type="submit">Rechercher</button>
+    </form>
+    <div class="under-search">
+      <div class="suggest" id="suggest">
+        <span>Essayer :</span>
+        <button type="button">flamme</button>
+        <button type="button">tête de mort</button>
+        <button type="button">damier</button>
+        <button type="button">vague</button>
+        <button type="button">étoile</button>
+        <button type="button">loup</button>
+      </div>
+      <div class="term-row">
+        <label for="term">Terme anglais</label>
+        <input class="term-input" id="term" type="text" autocomplete="off" spellcheck="false" title="Le terme réellement cherché. Corrigez-le si la traduction ne convient pas.">
+        <button class="btn ghost small" id="termBtn" type="button">Relancer</button>
+        <span class="note" id="termNote"></span>
+      </div>
+    </div>
+  </section>
+
+  <section aria-label="Résultats">
+    <div class="panel filters">
+      <div class="toolbar">
+        <div class="chips" id="sourceChips" role="group" aria-label="Filtrer par source"></div>
+        <label class="field-label">Licence
+          <select class="select" id="licFilter">
+            <option value="all">Toutes</option>
+            <option value="commercial">Usage commercial possible</option>
+            <option value="noattrib">Sans attribution (CC0, MIT, Apache…)</option>
+            <option value="libre">Domaine public / CC0 uniquement</option>
+          </select>
+        </label>
+        <label class="check"><input type="checkbox" id="noLogos" checked> Exclure les logos de marques</label>
+      </div>
+      <div class="logos-row">
+        <button class="btn ghost small" id="wvlBtn" type="button">Chercher dans les logos de marques</button>
+        <details class="keybox">
+          <summary>Worldvectorlogo · 10 recherches par jour sans clé</summary>
+          <div class="inner">
+            <input class="term-input" id="wvlKey" type="password" autocomplete="off" spellcheck="false" placeholder="Votre clé API (facultatif)">
+            <span class="note">Gratuite, 1 000 recherches par mois : créez un compte puis
+              <a href="https://worldvectorlogo.com/account/api-keys" target="_blank" rel="noopener">Compte → API Keys</a>.
+              Elle reste dans votre navigateur et n’est envoyée qu’à Worldvectorlogo.</span>
+          </div>
+        </details>
+      </div>
+      <p class="filters-note">Vérifiez toujours la licence sur la page d’origine avant un usage commercial. Un logo ou un personnage de marque reste protégé, même publié en « domaine public ».</p>
+    </div>
+    <p class="status" id="status" aria-live="polite"></p>
+    <div class="grid" id="grid"></div>
+    <div class="more-row" id="moreRow" hidden><button class="btn ghost" id="moreBtn" type="button">Plus de résultats</button></div>
+  </section>
+
+  <section class="section" aria-labelledby="h-ailleurs">
+    <div class="section-head">
+      <h2 id="h-ailleurs">Chercher aussi sur…</h2>
+      <p id="elsewhereQ"></p>
+    </div>
+    <div class="elsewhere" id="elsewhere"></div>
+  </section>
+
+  <section class="section" aria-label="Autres pages">
+    <div class="tiles">
+      <a class="tile" href="generateurs.html">
+        <div class="art"><svg viewBox="0 0 76 76" preserveAspectRatio="none"><path d="M0 46c12-8 22-8 34 0s24 8 42-2v32H0z" fill="#0e6e86"/><path d="M0 58c14-6 26-6 38 0s24 6 38 0v18H0z" fill="#0b5a6e"/><circle cx="54" cy="24" r="10" fill="#0e6e86" opacity=".35"/></svg></div>
+        <div><h3>Générateurs SVG</h3><p>Vagues, motifs, formes et textures : créez un fond vectoriel en quelques réglages.</p></div>
+      </a>
+      <a class="tile" href="annuaire.html">
+        <div class="art"><svg viewBox="0 0 76 76"><g fill="#0e6e86"><rect x="14" y="14" width="20" height="20" rx="5"/><rect x="42" y="14" width="20" height="20" rx="5" opacity=".5"/><rect x="14" y="42" width="20" height="20" rx="5" opacity=".5"/><rect x="42" y="42" width="20" height="20" rx="5"/></g></svg></div>
+        <div><h3>Annuaire des banques</h3><p>Une quarantaine de sites gratuits classés par type, avec leur licence.</p></div>
+      </a>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap cols">
+    <div>
+      <h3>Vectothèque</h3>
+      <p>Un outil gratuit pour trouver des vecteurs libres en français. Recherche intégrée : Iconify, Wikimedia Commons et Worldvectorlogo. Les fichiers appartiennent à leurs auteurs : respectez la licence de chacun.</p>
+    </div>
+    <div>
+      <h3>Pages</h3>
+      <ul><li><a href="index.html">Recherche</a></li><li><a href="generateurs.html">Générateurs SVG</a></li><li><a href="annuaire.html">Annuaire</a></li></ul>
+    </div>
+    <div>
+      <h3>Projet</h3>
+      <ul>
+        <li><a href="https://github.com/egstar38-afk/vectotheque" target="_blank" rel="noopener">Code source (MIT)</a></li>
+        <li><a href="https://github.com/egstar38-afk/vectotheque/issues" target="_blank" rel="noopener">Signaler un problème</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/js/core.js"></script>
+<script src="assets/js/traduction.js"></script>
+<script src="assets/js/recherche.js"></script>
+</body>
+</html>
