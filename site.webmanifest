@@ -1,0 +1,14 @@
+{
+  "name": "Vectothèque",
+  "short_name": "Vectothèque",
+  "description": "Trouvez le bon vecteur, avec sa licence.",
+  "lang": "fr",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f6f6f3",
+  "theme_color": "#0e6e86",
+  "icons": [
+    { "src": "/assets/img/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/assets/img/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
