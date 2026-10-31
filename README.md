@@ -45,6 +45,8 @@ Pour proposer un site, un générateur ou une correction de licence, ouvrez une 
 - Générateurs : `assets/js/generateurs-data.js`
 - Dictionnaire français → anglais : `assets/js/traduction.js`
 
+Après une modification d'un fichier CSS ou JS, augmentez le numéro `?v=` dans les liens des trois pages HTML : les visiteurs récupèrent ainsi la nouvelle version tout de suite.
+
 ## Licence
 
 Le code du site est sous licence [MIT](LICENSE). Les fichiers vectoriels trouvés grâce à lui appartiennent à leurs auteurs et gardent leur propre licence : vérifiez-la avant tout usage commercial. Les logos sont des marques déposées.
